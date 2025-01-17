@@ -41,15 +41,21 @@ namespace Match3
         private void CheckClick()
         {
             CheckCamera();
-
-            if (_hit.collider.gameObject.TryGetComponent(out Cell cell))
+            try
             {
-                ClickTransform?.Invoke(_clickTransform);
-                ClickObject?.Invoke(cell);
+                if (_hit.collider.gameObject.TryGetComponent(out Cell cell))
+                {
+                    ClickTransform?.Invoke(_clickTransform);
+                    ClickObject?.Invoke(cell);
+                }
+                else
+                {
+                    return;
+                }
             }
-            else
+            catch
             {
-                return;
+                Debug.Log("Click out of game field");
             }
         }
     }

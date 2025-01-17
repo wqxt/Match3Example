@@ -32,7 +32,7 @@ namespace Match3
             if (context.phase == InputActionPhase.Performed)
             {
                 ClickEvent?.Invoke();
-                Debug.Log("Click-click");
+                //Debug.Log("Click-click");
             }
         }
 
