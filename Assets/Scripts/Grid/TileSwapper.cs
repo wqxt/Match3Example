@@ -12,6 +12,7 @@ namespace Match3
         public List<Tile> _tileList;
         public event Action<List<Tile>> Swap;
         public List<Cell> _cellList;
+        public CheckMatch _checkmatch;
         private void OnEnable()
         {
             _inputController.ClickObject += CheckClickableObject;
@@ -36,9 +37,13 @@ namespace Match3
                     if (CheckMove(_firstClickableObject, clickableObject))
                     {
                         SwapClickableObject(_tileList, _firstClickableObject, clickableObject);
+
+
                         PlayUnSelectAnimation(clickableObject);
 
+
                         _firstClickableObject = null;
+                        _checkmatch.CheckGrid(_tileList);
                     }
                     else
                     {
@@ -50,6 +55,7 @@ namespace Match3
                 {
                     PlayUnSelectAnimation(_firstClickableObject);
                     _firstClickableObject = null;
+
                     return;
                 }
 
@@ -64,11 +70,8 @@ namespace Match3
 
             Vector3 checkValue = firstCellVector - secondCellvector;
 
-            Debug.Log($"CheckValue normalized X = {checkValue.normalized.x}" +
-                $" CheckValue normalized Y  ={checkValue.normalized.y}");
-
-
-            if (checkValue.normalized.x == 1 || checkValue.normalized.y == 1 || checkValue.normalized.x == -1 || checkValue.normalized.y == -1)
+            if (checkValue.normalized.x == 1 || checkValue.normalized.y == 1 
+                || checkValue.normalized.x == -1 || checkValue.normalized.y == -1)
             {
                 return true;
             }
@@ -80,61 +83,36 @@ namespace Match3
 
         private void SwapClickableObject(List<Tile> tileList, Cell firstClickableObject, Cell secondClickableObject)
         {
-
-            int firstObjectIndex = -1;
-            int secondObjectIndex = -1;
-
-
+            // Перемещение тайлов в мире
             Vector3 tempTransformPosition = firstClickableObject.Tile.transform.position;
             firstClickableObject.Tile.transform.position = secondClickableObject.Tile.transform.position;
             secondClickableObject.Tile.transform.position = tempTransformPosition;
 
-
-            Tile tempFruitTile = firstClickableObject.Tile;
-
-            firstClickableObject.Tile.TileTransform = secondClickableObject.Tile.TileTransform;
-
+            // Обмен тайлов в ячейках
+            Tile tempTile = firstClickableObject.Tile;
             firstClickableObject.Tile = secondClickableObject.Tile;
+            secondClickableObject.Tile = tempTile;
 
-            secondClickableObject.Tile.TileTransform = tempFruitTile.TileTransform;
+            // Найти индексы элементов в tileList
+            int firstObjectIndex = tileList.IndexOf(firstClickableObject.Tile);
+            int secondObjectIndex = tileList.IndexOf(secondClickableObject.Tile);
 
-            secondClickableObject.Tile = tempFruitTile;
-
-
-
-
-            for (int i = 0; i < tileList.Count; i++)
-            {
-
-                if (tileList[i].transform.position == firstClickableObject.Tile.transform.position)
-                {
-                    Debug.Log($"First type = {tileList[i]}" +
-                        $"First index = {i}");
-                    firstObjectIndex = i;
-                }
-
-                if (tileList[i].transform.position == secondClickableObject.Tile.transform.position)
-                {
-                    Debug.Log($"Second index = {tileList[i]}" +
-                        $"First index = {i}");
-                    secondObjectIndex = i;
-                }
-
-
-            }
-
+            // Убедиться, что индексы найдены
             if (firstObjectIndex >= 0 && secondObjectIndex >= 0)
             {
-
-                Debug.Log("Enter in the swap ");
+                // Обмен тайлов в списке
                 var temp = tileList[firstObjectIndex];
                 tileList[firstObjectIndex] = tileList[secondObjectIndex];
                 tileList[secondObjectIndex] = temp;
 
-                Swap?.Invoke(tileList);
+                Debug.Log("Tiles swapped successfully.");
             }
-
+            else
+            {
+                Debug.LogWarning("Failed to find one or both tiles in the list.");
+            }
         }
+
 
         private void PlaySelectAnimation(Cell clickableObject)
         {

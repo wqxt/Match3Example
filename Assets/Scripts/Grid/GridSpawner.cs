@@ -148,8 +148,74 @@ namespace Match3
 
         public void FillFallGrid(List<Tile> tileList)
         {
-            //Debug.Log("Enter in the fill fall grid");
             int tileListIndexPointer = 0;
+
+            // Проходим по каждому столбцу
+            for (int x = 0; x < _gameConfiguration._columns; x++)
+            {
+                int nullCounter = 0; // Счётчик пустых ячеек
+                int firstNullIndex = 0;
+
+                // Проходим по строкам в текущем столбце
+                for (int y = 0; y < _gameConfiguration._rows; y++)
+                {
+                    if (tileList[tileListIndexPointer].TileType == null) // Если ячейка пуста
+                    {
+                        if (nullCounter == 0)
+                        {
+                            firstNullIndex = tileListIndexPointer; // Запоминаем первый пустой индекс
+                        }
+
+                        nullCounter++;
+                    }
+                    else if (nullCounter > 0) // Если есть пустые ячейки ниже
+                    {
+                        // Перемещаем текущий тайл вниз
+                        tileList[firstNullIndex] = tileList[tileListIndexPointer];
+                        _cellList[firstNullIndex].Tile = _cellList[tileListIndexPointer].Tile;
+
+                        // Обновляем позицию тайла
+                        _cellList[firstNullIndex].Tile.transform.position = _cellList[firstNullIndex].transform.position;
+
+                        // Освобождаем текущую ячейку
+                        _cellList[tileListIndexPointer].Tile = null;
+                        tileList[tileListIndexPointer] = null;
+
+                        firstNullIndex++; // Сдвигаем индекс для следующего пустого места
+                    }
+
+                    tileListIndexPointer++; // Переход к следующей ячейке
+                }
+            }
+
+            // Заполняем оставшиеся пустые ячейки новыми тайлами
+            for (int i = 0; i < _cellList.Count; i++)
+            {
+                if (tileList[i] == null && _cellList[i].Tile == null)
+                {
+                    System.Random random = new System.Random();
+                    int tileValue = random.Next(_tilePull.Length);
+                    Tile tile = Instantiate(_tilePull[tileValue], _cellList[i].transform.position, Quaternion.identity, transform);
+
+                    // Устанавливаем новый тайл
+                    tileList[i] = tile;
+                    _cellList[i].Tile = tile;
+                    _cellList[i].Tile.TileTransform = _cellList[i].transform;
+                }
+            }
+
+            //_checkMatch.CheckGrid(tileList);
+        }
+
+
+
+
+        public IEnumerator StartFill(List<Tile> tileList)
+        {
+            yield return new WaitForSeconds(1f);
+            int tileListIndexPointer = 0;
+
+
 
             for (int x = 0; x < _gameConfiguration._columns; x++)
             {
@@ -169,7 +235,7 @@ namespace Match3
                             //Debug.Log($"First null index = {firstNullIndex}");
 
                         }
-           
+                        //deletedTiles.Add(tileList[tileListIndexPointer]);
                         nullCounter++;
 
                     }
@@ -186,7 +252,7 @@ namespace Match3
 
                             _cellList[tileListIndexPointer].Tile.transform.position = _cellList[firstNullIndex].transform.position;
                             _cellList[firstNullIndex].Tile = _cellList[tileListIndexPointer].Tile;
- 
+                            //_cellList[firstNullIndex].Tile.TileTransform = _cellList[tileListIndexPointer].Tile.TileTransform;
 
                             _cellList[tileListIndexPointer].Tile = null;
 
@@ -196,7 +262,7 @@ namespace Match3
 
                         }
 
- 
+                        //nullCounter--;
 
 
                     }
@@ -223,33 +289,7 @@ namespace Match3
 
                 }
             }
-            //_checkMatch.CheckGrid(tileList);
 
-            //StartCoroutine(StartFill(tileList));
-
-        }
-
-        IEnumerator StartFill(List<Tile> tileList)
-        {
-            yield return new WaitForSeconds(1f);
-            for (int i = 0; i < _cellList.Count; i++)
-            {
-
-                if (tileList[i] == null && _cellList[i].Tile == null)
-                {
-                    //Debug.Log("Enter in the fill  grid");
-                    System.Random random1 = new System.Random();
-                    var tileValue = random1.Next(_tilePull.Length);
-                    Tile tile = Instantiate(_tilePull[tileValue], _cellList[i].transform.position, Quaternion.identity, transform);//, _cellList[i].transform);
-                    tileList[i] = tile;
-                    _cellList[i].Tile = tile;
-                    _cellList[i].Tile.TileTransform = _cellList[i].transform;
-
-                    //_cellList[i].Tile = tile;
-
-                }
-            }
-            //_checkMatch.CheckGrid(tileList);
         }
 
 
