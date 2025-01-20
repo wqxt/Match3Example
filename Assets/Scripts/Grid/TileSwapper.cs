@@ -43,7 +43,7 @@ namespace Match3
 
 
                         _firstClickableObject = null;
-                        _checkmatch.CheckGrid(_tileList);
+                        _checkmatch.CheckMatches(_tileList);
                     }
                     else
                     {

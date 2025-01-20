@@ -18,5 +18,10 @@
             this._length = length;
             this._isHorizontal = isHorizontal;
         }
+
+        public bool IsValid()
+        {
+            return _tile != null; // Проверяем валидность структуры по полю _tile
+        }
     }
 }
