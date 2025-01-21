@@ -26,6 +26,7 @@ namespace Match3
 
         public void CheckMatches(List<Tile> tileList)
         {
+
             Debug.Log("Enter check grid");
             FindHorizontal(tileList, _gameConfiguration._rows, _gameConfiguration._columns);
             FindVertical(tileList, _gameConfiguration._rows, _gameConfiguration._columns);
@@ -33,7 +34,6 @@ namespace Match3
             if (_matches.Count > 0)
             {
                 StartCoroutine(DeleteTiles(tileList, _gameConfiguration._rows, _gameConfiguration._columns));
-
 
                 StartCoroutine(_spawner.DropTiles(tileList));
 
@@ -87,12 +87,12 @@ namespace Match3
             int verticalStep = tileLastIndexPointer + 1;
             int localStep = localStepIndex + 1;
 
-  
+
             while (localStep < rows && verticalStep < tileList.Count && tileList[tileLastIndexPointer].TileType == tileList[verticalStep].TileType)
             {
-                tileLength++; 
-                tileLastIndexPointer = verticalStep; 
-                verticalStep = tileLastIndexPointer + 1; 
+                tileLength++;
+                tileLastIndexPointer = verticalStep;
+                verticalStep = tileLastIndexPointer + 1;
                 localStep++;
             }
         }
@@ -168,7 +168,8 @@ namespace Match3
             yield return new WaitForSeconds(1f);
 
             List<Tile> deletedTiles = new List<Tile>();
-            //Debug.Log("Enter delete tile method");
+
+
             for (int i = 0; i < _matches.Count; i++)
             {
                 for (int j = 0; j < tileList.Count; j++)
@@ -177,90 +178,44 @@ namespace Match3
                     {
                         Debug.Log($"First delete element X = {_matches[i]._tile.TileTransform.localPosition.x}" +
                        $"First delete element Y = {_matches[i]._tile.TileTransform.localPosition.x}" +
-                       $"Lenght delete element = {_matches[i]._length}");
+                       $"Lenght delete element = {_matches[i]._length}" +
+                       $"Tile type element = {_matches[i]._tile.TileType}");
 
-                        //Debug.Log($"{}");
+
 
                         if (_matches[i]._isHorizontal == true)
                         {
-                            //Debug.Log("Enter horizontal check ");
                             for (int l = 0; l < _matches[i]._length; l++)
                             {
-                                try
-                                {
-                                    Tile a = tileList[j + rows * l];
-                                    //Debug.Log($"Detele this element X  = {a.TileTransform.localPosition.x}" +
-                                    //    $"Detele type element X  = {a}");
-                                    //a.gameObject.SetActive(false);
-                                    //a.TileType = null;
-                                    //a = null;
+                                Tile a = tileList[j + rows * l];
 
-                                    deletedTiles.Add(a);
-                                    //Destroy(a.gameObject);
-
-                                    //Debug.Log($"tile type after check = {a.TileType}");
-                                }
-                                catch
-                                {
-                                    //Debug.Log("Out of horizontalrange ");
-
-                                }
-
+                                deletedTiles.Add(a);
                             }
-                            //break;
                         }
                         else
                         {
                             for (int l = 0; l < _matches[i]._length; l++)
                             {
                                 Tile a = tileList[j + l];
-                                //Debug.Log($"Detele this element X  = {a.TileTransform.localPosition.x}" +
-                                //    $"Detele type element X  = {a}");
-                                //a.gameObject.SetActive(false);
-                                //a.TileType = null;
-                                //a = null;
+
                                 deletedTiles.Add(a);
-                                //Destroy(a.gameObject);
-                                //Debug.Log($"tile type after check = {a.TileType}");
-
-                                //try
-                                //{
-                                //    Tile a = tileList[j + l];
-                                //    //Debug.Log($"Detele this element X  = {a.TileTransform.localPosition.x}" +
-                                //    //    $"Detele type element X  = {a}");
-                                //    //a.gameObject.SetActive(false);
-                                //    //a.TileType = null;
-                                //    //a = null;
-                                //    deletedTiles.Add(a);
-                                //    //Destroy(a.gameObject);
-                                //    //Debug.Log($"tile type after check = {a.TileType}");
-                                //}
-                                //catch
-                                //{
-                                //    //Debug.Log("Out of vertical range ");
-
-                                //}
 
                             }
-                            //break;
                         }
                     }
-
                 }
             }
+
+
             foreach (var a in deletedTiles)
             {
-                //Debug.Log($"Deleted tile X = {a.TileTransform.localPosition.x}" +
-                //    $"Deleted tile Y = {a.TileTransform.localPosition.y}");
+                Debug.Log(a.TileType);
                 a.TileType = null;
                 Destroy(a.gameObject);
             }
 
             deletedTiles.Clear();
             _matches.Clear();
-            //Debug.Log($"Matches count = {_matches.Count}");
-            //FillGrid?.Invoke(tileList);
-            //CheckGrid(tileList);
         }
 
 

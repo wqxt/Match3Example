@@ -45,6 +45,7 @@ namespace Match3
             SpawnCellGrid();
             SpawnTiles(_cellList);
 
+   
 
             _checkMatch.CheckMatches(_tileList);
 
@@ -62,10 +63,6 @@ namespace Match3
                     _cellList.Add(cellPrefab);
                 }
             }
-            //StartCoroutine(SpawnTile(_cellGrid));
-
-
-
         }
 
 
@@ -127,7 +124,7 @@ namespace Match3
 
         public IEnumerator DropTiles(List<Tile> tileList)
         {
-            yield return new WaitForSeconds(1f);
+            yield return new WaitForSeconds(2f);
             int tileListIndexPointer = 0;
 
             for (int x = 0; x < _gameConfiguration._columns; x++)
@@ -150,10 +147,11 @@ namespace Match3
                         // ѕеремещаем тайл вниз
                         tileList[firstNullIndex] = tileList[tileListIndexPointer];
                         _cellList[firstNullIndex].Tile = _cellList[tileListIndexPointer].Tile;
+              
 
                         // ќбновл€ем позицию тайла
                         _cellList[firstNullIndex].Tile.transform.position = _cellList[firstNullIndex].transform.position;
-
+                        tileList[firstNullIndex].TileTransform = _cellList[firstNullIndex].transform;
                         // ќсвобождаем текущую €чейку
                         _cellList[tileListIndexPointer].Tile = null;
                         tileList[tileListIndexPointer] = null;
@@ -170,12 +168,13 @@ namespace Match3
 
         public IEnumerator FillEmptyCells(List<Tile> tileList)
         {
-            yield return new WaitForSeconds(2f);
+            yield return new WaitForSeconds(1.5f);
+            System.Random random = new System.Random();
             for (int i = 0; i < _cellList.Count; i++)
             {
                 if (tileList[i] == null && _cellList[i].Tile == null)
                 {
-                    System.Random random = new System.Random();
+      
                     int tileValue = random.Next(_tilePull.Length);
                     Tile tile = Instantiate(_tilePull[tileValue], _cellList[i].transform.position, Quaternion.identity, transform);
 
