@@ -1,3 +1,4 @@
+using DG.Tweening;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -7,37 +8,37 @@ namespace Match3
 {
     public class CheckMatch : MonoBehaviour
     {
-        private List<Match> _matches = new List<Match>();
-        public event Action<List<Tile>> FillGrid;
-        public event Action<List<Cell>> FillTiles;
         [SerializeField] private GameConfiguration _gameConfiguration;
-        public GridSpawner _spawner;
-        public TileSwapper _swapper;
+        [SerializeField] public TaskProcessor _taskProcessor;
+        private List<Match> _matches = new List<Match>();
 
-        private void OnEnable()
+        public GridSpawner _gridSpawner;
+        public TileSwapper _tileSwapper;
+
+
+        public void CheckMatchesAndProcess(List<Tile> tileList)
         {
-            //_swapper.Swap += CheckMatches;
+            _taskProcessor.AddTask(CheckMatches(tileList));
         }
 
-        private void OnDisable()
-        {
-            //_swapper.Swap -= CheckMatches;
-        }
-
-        public void CheckMatches(List<Tile> tileList)
+        public IEnumerator CheckMatches(List<Tile> tileList)
         {
 
-            Debug.Log("Enter check grid");
+            Debug.Log("Enter the check grid");
             FindHorizontal(tileList, _gameConfiguration._rows, _gameConfiguration._columns);
             FindVertical(tileList, _gameConfiguration._rows, _gameConfiguration._columns);
 
             if (_matches.Count > 0)
             {
-                StartCoroutine(DeleteTiles(tileList, _gameConfiguration._rows, _gameConfiguration._columns));
 
-                StartCoroutine(_spawner.DropTiles(tileList));
+                _taskProcessor.AddTask(DeleteTiles(tileList, _gameConfiguration._rows, _gameConfiguration._columns));
+                _taskProcessor.AddTask(_gridSpawner.DropTiles(tileList));
+                _taskProcessor.AddTask(_gridSpawner.SpawnTiles(tileList));
+                CheckMatchesAndProcess(tileList);
+
 
             }
+            yield break;
         }
 
         public void FindVertical(List<Tile> tileList, int rows, int columns)
@@ -57,7 +58,7 @@ namespace Match3
                         if (tileList[tileListIndexPointer].TileType == tileList[verticalStep].TileType)
                         {
                             tileLength++;
-                            CheckVerticalMatches(tileList, ref verticalStep, ref tileLength, localStep, rows);
+                            CheckVerticalMatches(tileList, verticalStep, ref tileLength, localStep, rows);
 
                             if (tileLength >= 3)
                             {
@@ -82,22 +83,25 @@ namespace Match3
             }
         }
 
-        public void CheckVerticalMatches(List<Tile> tileList, ref int tileLastIndexPointer, ref int tileLength, int localStepIndex, int rows)
+        public void CheckVerticalMatches(List<Tile> tileList, int tileLastIndexPointer, ref int tileLength, int localStepIndex, int rows)
         {
             int verticalStep = tileLastIndexPointer + 1;
             int localStep = localStepIndex + 1;
 
-
-            while (localStep < rows && verticalStep < tileList.Count && tileList[tileLastIndexPointer].TileType == tileList[verticalStep].TileType)
+            while (localStep < rows && verticalStep < tileList.Count)
             {
-                tileLength++;
-                tileLastIndexPointer = verticalStep;
-                verticalStep = tileLastIndexPointer + 1;
-                localStep++;
+                if (tileList[tileLastIndexPointer].TileType == tileList[verticalStep].TileType)
+                {
+                    tileLength++;
+                    verticalStep++;
+                    localStep++;
+                }
+                else
+                {
+                    break;
+                }
             }
         }
-
-
 
         public void FindHorizontal(List<Tile> tileList, int rows, int columns)
         {
@@ -147,17 +151,20 @@ namespace Match3
 
         public void CheckHorizontalMatches(List<Tile> tileList, ref int tileLastIndexPointer, ref int tileLength, int localStepIndex, int rows, int columns)
         {
-            var horizontalStep = tileLastIndexPointer + rows;
+            int horizontalStep = tileLastIndexPointer + rows;
             int localStep = localStepIndex + 1;
 
-            if (localStep < columns)
+            while (localStep < columns && horizontalStep < tileList.Count)
             {
                 if (tileList[tileLastIndexPointer].TileType == tileList[horizontalStep].TileType)
                 {
                     tileLength++;
-
-                    CheckHorizontalMatches(tileList, ref horizontalStep, ref tileLength, localStep, rows, columns);
-
+                    horizontalStep += rows;
+                    localStep++;
+                }
+                else
+                {
+                    break;
                 }
             }
         }
@@ -167,58 +174,76 @@ namespace Match3
         {
             yield return new WaitForSeconds(1f);
 
-            List<Tile> deletedTiles = new List<Tile>();
 
+            HashSet<Tile> tilesToDelete = new HashSet<Tile>();
 
             for (int i = 0; i < _matches.Count; i++)
             {
                 for (int j = 0; j < tileList.Count; j++)
                 {
-                    if (_matches[i]._tile.TileTransform == tileList[j].TileTransform && _matches[i]._tile != null)
+                    if (tileList[j] != null && _matches[i]._tile.TileTransform == tileList[j].TileTransform && _matches[i]._tile != null)
                     {
-                        Debug.Log($"First delete element X = {_matches[i]._tile.TileTransform.localPosition.x}" +
-                       $"First delete element Y = {_matches[i]._tile.TileTransform.localPosition.x}" +
-                       $"Lenght delete element = {_matches[i]._length}" +
-                       $"Tile type element = {_matches[i]._tile.TileType}");
-
-
-
-                        if (_matches[i]._isHorizontal == true)
+                        if (_matches[i]._isHorizontal)
                         {
                             for (int l = 0; l < _matches[i]._length; l++)
                             {
-                                Tile a = tileList[j + rows * l];
+                                int index = j + rows * l;
+                                if (index >= 0 && index < tileList.Count)
+                                {
+                                    Tile a = tileList[index];
 
-                                deletedTiles.Add(a);
+                                    if (a.TileType != null)
+                                    {
+                    
+                                        tilesToDelete.Add(a);
+                                    }
+                                }
                             }
                         }
                         else
                         {
                             for (int l = 0; l < _matches[i]._length; l++)
                             {
-                                Tile a = tileList[j + l];
-
-                                deletedTiles.Add(a);
-
+                                if (j + l >= 0 && j + l < tileList.Count)
+                                {
+                                    Tile a = tileList[j + l];
+                                    if (a.TileType != null)
+                                    {
+                                        
+                                        tilesToDelete.Add(a);
+                                    }
+                                }
                             }
                         }
                     }
                 }
             }
 
-
-            foreach (var a in deletedTiles)
+            // Удаляем тайлы
+            foreach (var a in tilesToDelete)
             {
-                Debug.Log(a.TileType);
-                a.TileType = null;
-                Destroy(a.gameObject);
+                if (a != null && a.gameObject != null)
+                {
+         
+                    Debug.Log($"DELETED Tile type {a.TileType}" +
+                        $"Tile X = {a.TileTransform.localPosition.x}" +
+                        $"Tile Y = {a.TileTransform.localPosition.y}");
+
+                    _gridSpawner.PlayDeletedTileAnimation(a);
+
+                    //a.transform
+                    //.DOScale(2f, 1f)
+                    //.SetEase(Ease.InOutQuad);
+
+
+                    a.TileType = null;
+                    //Destroy(a.gameObject);
+                }
             }
 
-            deletedTiles.Clear();
+
+            tilesToDelete.Clear();
             _matches.Clear();
         }
-
-
-
     }
 }

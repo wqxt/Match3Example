@@ -9,10 +9,10 @@ namespace Match3
     {
         [SerializeField] private InputController _inputController;
         [SerializeField] private Cell _firstClickableObject = null;
-        public List<Tile> _tileList;
-        public event Action<List<Tile>> Swap;
-        public List<Cell> _cellList;
-        public CheckMatch _checkmatch;
+        [SerializeField] protected internal CheckMatch _checkMatch;
+
+        protected internal List<Tile> _tileList;
+        protected internal List<Cell> _cellList;
         private void OnEnable()
         {
             _inputController.ClickObject += CheckClickableObject;
@@ -38,16 +38,15 @@ namespace Match3
                     {
                         SwapClickableObject(_tileList, _firstClickableObject, clickableObject);
 
-
                         PlayUnSelectAnimation(clickableObject);
 
-
                         _firstClickableObject = null;
-                        _checkmatch.CheckMatches(_tileList);
+                        Debug.Log("Check in the Swap");
+                        _checkMatch.CheckMatchesAndProcess(_tileList);
                     }
                     else
                     {
-                        //PlayUnSelectAnimation(_firstClickableObject);
+
                         Debug.Log($"Current move not correct");
                     }
                 }
@@ -70,7 +69,7 @@ namespace Match3
 
             Vector3 checkValue = firstCellVector - secondCellvector;
 
-            if (checkValue.normalized.x == 1 || checkValue.normalized.y == 1 
+            if (checkValue.normalized.x == 1 || checkValue.normalized.y == 1
                 || checkValue.normalized.x == -1 || checkValue.normalized.y == -1)
             {
                 return true;
@@ -97,7 +96,6 @@ namespace Match3
             int firstObjectIndex = tileList.IndexOf(firstClickableObject.Tile);
             int secondObjectIndex = tileList.IndexOf(secondClickableObject.Tile);
 
-            // Убедиться, что индексы найдены
             if (firstObjectIndex >= 0 && secondObjectIndex >= 0)
             {
                 // Обмен тайлов в списке

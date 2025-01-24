@@ -10,7 +10,6 @@ GameObject:
   m_Component:
   - component: {fileID: 6679618600454697598}
   - component: {fileID: 2160786309474850643}
-  - component: {fileID: 2594111216803211578}
   m_Layer: 0
   m_Name: Board
   m_TagString: Untagged
@@ -87,31 +86,6 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!114 &2594111216803211578
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2388295346374819808}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5bd7a8c0bf285e24fb0d62716a049406, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _fruitPull:
-  - {fileID: 0}
-  - {fileID: 729508707098509962, guid: a29f7e4f00bc4794180bbeace2b0917a, type: 3}
-  - {fileID: 8472809684160840243, guid: 5dd7aed9f66632e4fb26432c856bde24, type: 3}
-  - {fileID: 8160062166033390086, guid: 66577906154897a478a53311495760d0, type: 3}
-  - {fileID: 6442799495514169782, guid: 1c805c6222226854391af231f67fa4df, type: 3}
-  _fruitsGrid: []
-  _grid: []
-  _startPosition: {fileID: 3605001502825726263}
-  _cellPrefab: {fileID: 0}
-  _columns: 8
-  _rows: 6
-  _checkBoard: {fileID: 0}
 --- !u!1 &5909779683835592658
 GameObject:
   m_ObjectHideFlags: 0
