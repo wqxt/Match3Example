@@ -4,8 +4,10 @@ using UnityEngine;
 
 namespace Match3
 {
-    public class TaskProcessor : MonoBehaviour
+    public class TaskController : MonoBehaviour
     {
+        // добавить обработчик ошибок, если _isProcessing слелит - все упадет
+
         private Queue<IEnumerator> _taskQueue = new Queue<IEnumerator>();
         private bool _isProcessing = false;
 

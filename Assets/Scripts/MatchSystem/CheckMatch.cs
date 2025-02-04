@@ -1,5 +1,3 @@
-using DG.Tweening;
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -8,20 +6,20 @@ namespace Match3
 {
     public class CheckMatch : MonoBehaviour
     {
-        [SerializeField] private GameConfiguration _gameConfiguration;
-        [SerializeField] public TaskProcessor _taskProcessor;
+        [SerializeField] private GridConfiguration _gameConfiguration;
+        [SerializeField] public TaskController _taskProcessor;
         private List<Match> _matches = new List<Match>();
 
-        public GridSpawner _gridSpawner;
+        public GridController _gridSpawner;
         public TileSwapper _tileSwapper;
-
+        public TileAnimationController _animatorController;
 
         public void CheckMatchesAndProcess(List<Tile> tileList)
         {
             _taskProcessor.AddTask(CheckMatches(tileList));
         }
 
-        public IEnumerator CheckMatches(List<Tile> tileList)
+        private IEnumerator CheckMatches(List<Tile> tileList)
         {
 
             Debug.Log("Enter the check grid");
@@ -31,7 +29,7 @@ namespace Match3
             if (_matches.Count > 0)
             {
 
-                _taskProcessor.AddTask(DeleteTiles(tileList, _gameConfiguration._rows, _gameConfiguration._columns));
+                _taskProcessor.AddTask(_gridSpawner.DeleteTiles(tileList, _gameConfiguration._rows, _gameConfiguration._columns, _matches));
                 _taskProcessor.AddTask(_gridSpawner.DropTiles(tileList));
                 _taskProcessor.AddTask(_gridSpawner.SpawnTiles(tileList));
                 CheckMatchesAndProcess(tileList);
@@ -41,7 +39,7 @@ namespace Match3
             yield break;
         }
 
-        public void FindVertical(List<Tile> tileList, int rows, int columns)
+        private void FindVertical(List<Tile> tileList, int rows, int columns)
         {
             int tileListIndexPointer = 0;
 
@@ -83,7 +81,7 @@ namespace Match3
             }
         }
 
-        public void CheckVerticalMatches(List<Tile> tileList, int tileLastIndexPointer, ref int tileLength, int localStepIndex, int rows)
+        private void CheckVerticalMatches(List<Tile> tileList, int tileLastIndexPointer, ref int tileLength, int localStepIndex, int rows)
         {
             int verticalStep = tileLastIndexPointer + 1;
             int localStep = localStepIndex + 1;
@@ -103,7 +101,7 @@ namespace Match3
             }
         }
 
-        public void FindHorizontal(List<Tile> tileList, int rows, int columns)
+       private void FindHorizontal(List<Tile> tileList, int rows, int columns)
         {
             for (int i = 0; i < rows; i++)
             {
@@ -127,6 +125,7 @@ namespace Match3
                             {
                                 Match verticalMatch = new Match(tileList[tileListIndexPointer], tileList[tileListIndexPointer].TileTransform.localPosition.x,
                                     tileList[tileListIndexPointer].TileTransform.localPosition.y, tileLength, true);
+
                                 Debug.Log($"Match first pos X = {verticalMatch._tile.TileTransform.localPosition.x} ," +
                                         $"Match first pos Y = {verticalMatch._tile.TileTransform.localPosition.y} " +
                                         $"match type = {verticalMatch._tile.TileType} " +
@@ -149,7 +148,7 @@ namespace Match3
             }
         }
 
-        public void CheckHorizontalMatches(List<Tile> tileList, ref int tileLastIndexPointer, ref int tileLength, int localStepIndex, int rows, int columns)
+        private void CheckHorizontalMatches(List<Tile> tileList, ref int tileLastIndexPointer, ref int tileLength, int localStepIndex, int rows, int columns)
         {
             int horizontalStep = tileLastIndexPointer + rows;
             int localStep = localStepIndex + 1;
@@ -167,83 +166,6 @@ namespace Match3
                     break;
                 }
             }
-        }
-
-
-        public IEnumerator DeleteTiles(List<Tile> tileList, int rows, int columns)
-        {
-            yield return new WaitForSeconds(1f);
-
-
-            HashSet<Tile> tilesToDelete = new HashSet<Tile>();
-
-            for (int i = 0; i < _matches.Count; i++)
-            {
-                for (int j = 0; j < tileList.Count; j++)
-                {
-                    if (tileList[j] != null && _matches[i]._tile.TileTransform == tileList[j].TileTransform && _matches[i]._tile != null)
-                    {
-                        if (_matches[i]._isHorizontal)
-                        {
-                            for (int l = 0; l < _matches[i]._length; l++)
-                            {
-                                int index = j + rows * l;
-                                if (index >= 0 && index < tileList.Count)
-                                {
-                                    Tile a = tileList[index];
-
-                                    if (a.TileType != null)
-                                    {
-                    
-                                        tilesToDelete.Add(a);
-                                    }
-                                }
-                            }
-                        }
-                        else
-                        {
-                            for (int l = 0; l < _matches[i]._length; l++)
-                            {
-                                if (j + l >= 0 && j + l < tileList.Count)
-                                {
-                                    Tile a = tileList[j + l];
-                                    if (a.TileType != null)
-                                    {
-                                        
-                                        tilesToDelete.Add(a);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-            // Удаляем тайлы
-            foreach (var a in tilesToDelete)
-            {
-                if (a != null && a.gameObject != null)
-                {
-         
-                    Debug.Log($"DELETED Tile type {a.TileType}" +
-                        $"Tile X = {a.TileTransform.localPosition.x}" +
-                        $"Tile Y = {a.TileTransform.localPosition.y}");
-
-                    _gridSpawner.PlayDeletedTileAnimation(a);
-
-                    //a.transform
-                    //.DOScale(2f, 1f)
-                    //.SetEase(Ease.InOutQuad);
-
-
-                    a.TileType = null;
-                    //Destroy(a.gameObject);
-                }
-            }
-
-
-            tilesToDelete.Clear();
-            _matches.Clear();
         }
     }
 }

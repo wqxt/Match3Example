@@ -2,13 +2,13 @@
 {
     public struct Match
     {
-        public float _x;
-        public float _y;
+        private float _x;
+        private float _y;
 
-        public Tile _tile;
+        internal   Tile _tile;
 
-        public int _length;
-        public bool _isHorizontal;
+        internal int _length;
+        internal bool _isHorizontal;
 
         public Match(Tile tile, float x, float y, int length, bool isHorizontal)
         {

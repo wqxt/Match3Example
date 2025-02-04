@@ -1,17 +1,16 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.UIElements;
 
 namespace Match3
 {
-    public class GameManager : MonoBehaviour
+    public class GameFacade : MonoBehaviour
     {
-        public GridSpawner _gridSpawner;
+        // нужна передача зависимостей через zenject, добавить явный метод для инициализации 
+
+        public GridController _gridSpawner;
         public TileSwapper _tileSwapper;
         public CheckMatch _checkMatch;
-        public TaskProcessor _taskProcessor;
+        public TaskController _taskProcessor;
 
 
         private void Awake()

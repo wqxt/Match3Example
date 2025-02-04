@@ -1,5 +1,4 @@
 using DG.Tweening;
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -13,6 +12,7 @@ namespace Match3
 
         protected internal List<Tile> _tileList;
         protected internal List<Cell> _cellList;
+
         private void OnEnable()
         {
             _inputController.ClickObject += CheckClickableObject;
@@ -23,7 +23,7 @@ namespace Match3
             _inputController.ClickObject -= CheckClickableObject;
         }
 
-        public void CheckClickableObject(Cell clickableObject)
+        private void CheckClickableObject(Cell clickableObject)
         {
             if (_firstClickableObject == null)
             {
@@ -61,7 +61,7 @@ namespace Match3
             }
         }
 
-        public bool CheckMove(Cell firstCell, Cell secondCell)
+        private bool CheckMove(Cell firstCell, Cell secondCell)
         {
 
             Vector3 firstCellVector = new Vector3(secondCell.transform.localPosition.x, secondCell.transform.localPosition.y, secondCell.transform.localPosition.z);
