@@ -12,7 +12,6 @@ namespace Match3
         [SerializeField] private Vector3 _clickTransform;
         [SerializeField] private Camera _camera;
 
-        public event Action<Vector3> ClickTransform;
         public event Action<Cell> ClickObject;
 
         private void OnEnable()
@@ -45,7 +44,7 @@ namespace Match3
             {
                 if (_hit.collider.gameObject.TryGetComponent(out Cell cell))
                 {
-                    ClickTransform?.Invoke(_clickTransform);
+
                     ClickObject?.Invoke(cell);
                 }
                 else

@@ -123,6 +123,55 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &32179641
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 32179643}
+  - component: {fileID: 32179642}
+  m_Layer: 0
+  m_Name: TileFactory
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &32179642
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 32179641}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c0b158a56757bb54ea8356b93613fad4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _tilePull:
+  - {fileID: 729508707098509962, guid: a29f7e4f00bc4794180bbeace2b0917a, type: 3}
+  - {fileID: 8472809684160840243, guid: 5dd7aed9f66632e4fb26432c856bde24, type: 3}
+  - {fileID: 8160062166033390086, guid: 66577906154897a478a53311495760d0, type: 3}
+  - {fileID: 6442799495514169782, guid: 1c805c6222226854391af231f67fa4df, type: 3}
+--- !u!4 &32179643
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 32179641}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 1.6187017, y: -1.1645292, z: 0.84305775}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &774671473 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 7913991713853481035, guid: aaf2dccb2eeb1f2468094f1546b64874, type: 3}
@@ -175,6 +224,51 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &915604798
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 915604800}
+  - component: {fileID: 915604799}
+  m_Layer: 0
+  m_Name: TilePool
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &915604799
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 915604798}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6e934732fd2d74d47ba58af17e65d721, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _factory: {fileID: 32179642}
+--- !u!4 &915604800
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 915604798}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &926574413 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 5927953068750796542, guid: f9c6a58100e88d64baf03f4d0b9cb9a8, type: 3}
@@ -211,7 +305,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _gameConfiguration: {fileID: 11400000, guid: 80c730e44875ba84eac7fd0cce1ba99b, type: 2}
   _taskProcessor: {fileID: 1124261386}
-  _gridSpawner: {fileID: 1161526735}
+  _gridController: {fileID: 1161526735}
   _tileSwapper: {fileID: 845826350}
   _animatorController: {fileID: 1745596376}
 --- !u!4 &948195310
@@ -284,7 +378,7 @@ GameObject:
   - component: {fileID: 1161526736}
   - component: {fileID: 1161526735}
   m_Layer: 0
-  m_Name: GridSpawner
+  m_Name: GridController
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -302,15 +396,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5bd7a8c0bf285e24fb0d62716a049406, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _tilePull:
-  - {fileID: 729508707098509962, guid: a29f7e4f00bc4794180bbeace2b0917a, type: 3}
-  - {fileID: 8472809684160840243, guid: 5dd7aed9f66632e4fb26432c856bde24, type: 3}
-  _tileList: []
   _cellList: []
   _startSpawnPosition: {fileID: 1534933832}
   _cellPrefab: {fileID: 3153870492811644203, guid: ccba4adbb15911c48864f286b40de94d, type: 3}
   _gameConfiguration: {fileID: 11400000, guid: 80c730e44875ba84eac7fd0cce1ba99b, type: 2}
   _tileAnimationController: {fileID: 1745596376}
+  _tilePoolFactory: {fileID: 32179642}
+  _tilePool: {fileID: 915604799}
 --- !u!4 &1161526736
 Transform:
   m_ObjectHideFlags: 0
@@ -320,7 +412,7 @@ Transform:
   m_GameObject: {fileID: 1161526734}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 46.98867, y: 31.695055, z: 0.22288014}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -857,7 +949,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4a36e0e614fae83479eb0fe06b96520d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _gridSpawner: {fileID: 1161526735}
+  _gridController: {fileID: 1161526735}
   _tileSwapper: {fileID: 845826350}
   _checkMatch: {fileID: 948195309}
   _taskProcessor: {fileID: 1124261386}
@@ -1347,3 +1439,5 @@ SceneRoots:
   - {fileID: 1161526736}
   - {fileID: 1124261387}
   - {fileID: 1745596377}
+  - {fileID: 32179643}
+  - {fileID: 915604800}

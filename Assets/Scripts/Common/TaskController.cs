@@ -13,7 +13,11 @@ namespace Match3
 
         public void AddTask(IEnumerator task)
         {
+          
+
             _taskQueue.Enqueue(task);
+
+            //Debug.Log($"Add task ={task.Current.ToString()} ");
             if (!_isProcessing)
             {
                 StartCoroutine(ProcessQueue());

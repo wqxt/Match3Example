@@ -9,8 +9,6 @@ namespace Match3
         [SerializeField] private InputController _inputController;
         [SerializeField] private Cell _firstClickableObject = null;
         [SerializeField] protected internal CheckMatch _checkMatch;
-
-        protected internal List<Tile> _tileList;
         protected internal List<Cell> _cellList;
 
         private void OnEnable()
@@ -36,13 +34,13 @@ namespace Match3
                 {
                     if (CheckMove(_firstClickableObject, clickableObject))
                     {
-                        SwapClickableObject(_tileList, _firstClickableObject, clickableObject);
+                        SwapClickableObject(_cellList, _firstClickableObject, clickableObject);
 
                         PlayUnSelectAnimation(clickableObject);
 
                         _firstClickableObject = null;
                         Debug.Log("Check in the Swap");
-                        _checkMatch.CheckMatchesAndProcess(_tileList);
+                        _checkMatch.CheckMatchesAndProcess(_cellList);
                     }
                     else
                     {
@@ -80,7 +78,7 @@ namespace Match3
             }
         }
 
-        private void SwapClickableObject(List<Tile> tileList, Cell firstClickableObject, Cell secondClickableObject)
+        private void SwapClickableObject(List<Cell> cellList, Cell firstClickableObject, Cell secondClickableObject)
         {
             // Перемещение тайлов в мире
             Vector3 tempTransformPosition = firstClickableObject.Tile.transform.position;
@@ -92,16 +90,16 @@ namespace Match3
             firstClickableObject.Tile = secondClickableObject.Tile;
             secondClickableObject.Tile = tempTile;
 
-            // Найти индексы элементов в tileList
-            int firstObjectIndex = tileList.IndexOf(firstClickableObject.Tile);
-            int secondObjectIndex = tileList.IndexOf(secondClickableObject.Tile);
+            // Найти индексы элементов в cellList
+            int firstObjectIndex = cellList.IndexOf(firstClickableObject);
+            int secondObjectIndex = cellList.IndexOf(secondClickableObject);
 
             if (firstObjectIndex >= 0 && secondObjectIndex >= 0)
             {
                 // Обмен тайлов в списке
-                var temp = tileList[firstObjectIndex];
-                tileList[firstObjectIndex] = tileList[secondObjectIndex];
-                tileList[secondObjectIndex] = temp;
+                var temp = cellList[firstObjectIndex].Tile.TileTransform;
+                cellList[firstObjectIndex].Tile.TileTransform = cellList[secondObjectIndex].Tile.TileTransform;
+                cellList[secondObjectIndex].Tile.TileTransform = temp;
 
                 Debug.Log("Tiles swapped successfully.");
             }

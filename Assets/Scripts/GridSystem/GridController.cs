@@ -1,52 +1,51 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using UnityEngine;
 
 namespace Match3
 {
     public class GridController : MonoBehaviour
     {
-        [SerializeField] private Tile[] _tilePull;
-        [SerializeField] protected internal List<Tile> _tileList = new List<Tile>();
-        [SerializeField] protected internal List<Cell> _cellList = new List<Cell>();
+        protected internal List<Cell> _cellList = new List<Cell>();
         [SerializeField] private Transform _startSpawnPosition;
         [SerializeField] private Cell _cellPrefab;
         [SerializeField] private GridConfiguration _gameConfiguration;
         [SerializeField] private TileAnimationController _tileAnimationController;
-
+        [SerializeField] public TileFactory _tilePoolFactory;
+        [SerializeField] private TilePool _tilePool;
         public void SpawnCellGrid()
         {
+            Debug.Log("Enter to the spawn cell grid");
+
             for (int x = 0; x < _gameConfiguration._columns; x++)
             {
                 for (int y = 0; y < _gameConfiguration._rows; y++)
                 {
-
                     Vector3 cellPosition = new Vector3(_startSpawnPosition.position.x + x, _startSpawnPosition.position.y + y, 0);
                     var cellPrefab = Instantiate(_cellPrefab, cellPosition, Quaternion.identity, transform);
                     _cellList.Add(cellPrefab);
-                    _tileList.Add(null); // добавляем 
                 }
             }
         }
 
-        public IEnumerator SpawnTiles(List<Tile> tileList)
+        public IEnumerator SpawnTiles(List<Cell> cellList)
         {
+            Debug.Log("Enter to the spawn tiles");
+
             yield return new WaitForSeconds(1.5f);
-            System.Random random = new System.Random();
+
             for (int i = 0; i < _cellList.Count; i++)
             {
-                if (tileList[i] == null && _cellList[i].Tile == null)
+                if (_cellList[i].Tile == null)
                 {
+                    int tileValue = Random.Range(0, _tilePoolFactory.GetPullLeght());
 
-                    int tileValue = random.Next(_tilePull.Length);
-                    Tile tile = Instantiate(_tilePull[tileValue], _cellList[i].transform.position, Quaternion.identity, transform);
+
+                    var tile = _tilePool.GetTileFromPool(tileValue, _cellList[i].transform, _cellList.Count, transform);
+                    Debug.LogWarning($"Current length = {_tilePool.GetTileListLenght()}");
 
                     // Проигрываем анимацию
                     yield return _tileAnimationController.PlaySpawnTileAnimation(tile, _cellList[i].transform);
-                    // Устанавливаем новый тайл
-                    tileList[i] = tile;
-
 
                     _cellList[i].Tile = tile;
                     _cellList[i].Tile.TileTransform = _cellList[i].transform;
@@ -55,11 +54,12 @@ namespace Match3
         }
 
 
-        public IEnumerator DropTiles(List<Tile> tileList)
+        public IEnumerator DropTiles(List<Cell> cellList)
         {
-            yield return new WaitForSeconds(1f);
 
-            int tileListIndexPointer = 0;
+            yield return new WaitForSeconds(1f);
+            Debug.Log("Enter to the drop tiles");
+            int cellListIndexPointer = 0;
 
             for (int x = 0; x < _gameConfiguration._columns; x++)
             {
@@ -68,79 +68,79 @@ namespace Match3
 
                 for (int y = 0; y < _gameConfiguration._rows; y++)
                 {
-                    if (tileList[tileListIndexPointer].TileType == null) // Пустая ячейка
+                    if (cellList[cellListIndexPointer].Tile == null) // Пустая ячейка
                     {
                         if (nullCounter == 0)
                         {
-                            firstNullIndex = tileListIndexPointer;
+                            firstNullIndex = cellListIndexPointer;
                         }
                         nullCounter++;
                     }
                     else if (nullCounter > 0) // Есть пустые ячейки ниже
                     {
-
-                        tileList[firstNullIndex] = tileList[tileListIndexPointer]; // Перезаписываем ссылку тайла
-                        _cellList[firstNullIndex].Tile = _cellList[tileListIndexPointer].Tile; // Перезаписываем тайл в таблице клеток
-                        tileList[firstNullIndex].TileTransform = _cellList[firstNullIndex].transform; // Перезаписываем трансформ
+                        cellList[firstNullIndex].Tile = cellList[cellListIndexPointer].Tile; // Перезаписываем тайл в клетке
+                        cellList[firstNullIndex].Tile.TileTransform = _cellList[firstNullIndex].transform; // Перезаписываем трансформ клетки в тайл
 
                         // Проигрываем анимацию
-                        yield return _tileAnimationController.PlayDropTileAnimation(tileList[firstNullIndex], _cellList[firstNullIndex].transform);
-
+                        yield return _tileAnimationController.PlayDropTileAnimation(cellList[firstNullIndex].Tile, _cellList[firstNullIndex].transform);
 
                         // Освобождаем текущую ячейку
-                        _cellList[tileListIndexPointer].Tile = null;
-                        tileList[tileListIndexPointer] = null;
-
+                        cellList[cellListIndexPointer].Tile = null;
                         firstNullIndex++;
                     }
 
-                    tileListIndexPointer++;
+                    cellListIndexPointer++;
                 }
             }
         }
 
-        public IEnumerator DeleteTiles(List<Tile> tileList, int rows, int columns, List<Match> _matches)
+        public IEnumerator DeleteTiles(List<Cell> cellList, int rows, int columns, List<Match> matches)
         {
+            Debug.Log("Enter to the Delete tiles");
             yield return new WaitForSeconds(1f);
 
 
             HashSet<Tile> tilesToDelete = new HashSet<Tile>();
+            HashSet<Cell> cellToRefresh = new HashSet<Cell>();
 
-            for (int i = 0; i < _matches.Count; i++)
+
+            for (int i = 0; i < matches.Count; i++)
             {
-                for (int j = 0; j < tileList.Count; j++)
+                for (int j = 0; j < cellList.Count; j++)
                 {
-                    if (tileList[j] != null && _matches[i]._tile.TileTransform == tileList[j].TileTransform && _matches[i]._tile != null)
+                    if (cellList[j] != null && matches[i]._tile.TileTransform == cellList[j].Tile.TileTransform && matches[i]._tile != null) // Ищем совпадения по трансформу
                     {
-                        if (_matches[i]._isHorizontal)
+                        if (matches[i]._isHorizontal)
                         {
-                            for (int l = 0; l < _matches[i]._length; l++)
+                            for (int l = 0; l < matches[i]._length; l++) // По всей длине совпадения добавляем тайлы в список на удаление 
                             {
-                                int index = j + rows * l;
-                                if (index >= 0 && index < tileList.Count)
+                                int index = j + rows * l; // горизонтальный шаш
+
+                                if (index >= 0 && index < cellList.Count)
                                 {
-                                    Tile a = tileList[index];
+                                    Tile tile = cellList[index].Tile;
 
-                                    if (a.TileType != null)
+                                    if (tile.TileType != null)
                                     {
-
-                                        //добавляем тайлы для удаления 
-                                        tilesToDelete.Add(a);
+                                        tilesToDelete.Add(tile);
+                                        cellToRefresh.Add(cellList[index]);
                                     }
                                 }
                             }
                         }
                         else
                         {
-                            for (int l = 0; l < _matches[i]._length; l++)
+                            for (int l = 0; l < matches[i]._length; l++)
                             {
-                                if (j + l >= 0 && j + l < tileList.Count)
+                                int index = j + l; // Вертикальный шаг
+
+                                if (index >= 0 && index < cellList.Count)
                                 {
-                                    Tile a = tileList[j + l];
-                                    if (a.TileType != null)
+                                    Tile tile = cellList[index].Tile;
+                                    if (tile.TileType != null)
                                     {
-                                        //добавляем тайлы для удаления 
-                                        tilesToDelete.Add(a);
+                                        tilesToDelete.Add(tile);
+                                        cellToRefresh.Add(cellList[index]);
                                     }
                                 }
                             }
@@ -149,18 +149,23 @@ namespace Match3
                 }
             }
 
-            // Удаляем тайлы
+            // Очищаем клетки от тайлов
+            foreach (Cell cell in cellToRefresh)
+            {
+                cell.Tile = null;
+            }
+
+            // Добавляем тайлы в пул
             foreach (var a in tilesToDelete)
             {
                 if (a != null && a.gameObject != null)
                 {
-
                     yield return _tileAnimationController.PlayDeletedTileAnimation(a);
-
-                    a.TileType = null;
-                    Destroy(a.gameObject);
+                    _tilePool.ReturnToPool(a);
                 }
             }
+
+            matches.Clear();
             tilesToDelete.Clear();
         }
     }

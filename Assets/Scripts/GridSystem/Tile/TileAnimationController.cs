@@ -15,13 +15,13 @@ namespace Match3
             tile.transform.position = new Vector3(targetTransform.position.x, 6);
 
             tile.transform
-                .DOScale(0.5f, 0.2f)
-                .SetEase(Ease.InOutQuad);
+            .DOMove(targetTransform.position, _spawnTileAnimationDuration)
+            .SetEase(Ease.InOutQuad)
+            .WaitForCompletion();
 
             tile.transform
-                .DOMove(targetTransform.position, _spawnTileAnimationDuration)
-                .SetEase(Ease.InOutQuad)
-                .WaitForCompletion();
+                 .DOScale(0.5f, 0.2f)
+                 .SetEase(Ease.InOutQuad);
             yield break;
         }
 
@@ -33,7 +33,6 @@ namespace Match3
                 .WaitForCompletion();
             yield break;
         }
-
 
         public IEnumerator PlayDeletedTileAnimation(Tile tile)
         {
