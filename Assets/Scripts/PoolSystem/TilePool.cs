@@ -35,7 +35,7 @@ namespace Match3
             var defaultPoolTile = _tileList[0];
             defaultPoolTile.gameObject.SetActive(true);
             _tileList.Remove(defaultPoolTile);
-            _tileList.RemoveAt(0);
+
 
             return defaultPoolTile;
         }

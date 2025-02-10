@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -7,12 +8,14 @@ namespace Match3
     public class CheckMatch : MonoBehaviour
     {
         [SerializeField] private GridConfiguration _gameConfiguration;
-        [SerializeField] public TaskController _taskProcessor;
         [SerializeField] private List<Match> _matches = new List<Match>();
 
+        [SerializeField] public TaskController _taskProcessor;
         public GridController _gridController;
         public TileSwapper _tileSwapper;
         public TileAnimationController _animatorController;
+
+        public Action<int> UpdateScore; // передаем длину текущего совпадения
 
         public void CheckMatchesAndProcess(List<Cell> cellList)
         {
@@ -27,7 +30,6 @@ namespace Match3
 
             if (_matches.Count > 0)
             {
-
                 _taskProcessor.AddTask(_gridController.DeleteTiles(cellList, _gameConfiguration._rows, _gameConfiguration._columns, _matches));
                 _taskProcessor.AddTask(_gridController.DropTiles(cellList));
                 _taskProcessor.AddTask(_gridController.SpawnTiles(cellList));
@@ -66,8 +68,10 @@ namespace Match3
                                         $"match type = {verticalMatch._tile.TileType} " +
                                         $"match length = {verticalMatch._length} " +
                                         $"match is horizontal= {verticalMatch._isHorizontal}");
-                                _matches.Add(verticalMatch);
 
+                 
+                                UpdateScore?.Invoke(tileLength);
+                                _matches.Add(verticalMatch);
                             }
 
                             j = j + tileLength - 1;
@@ -131,7 +135,7 @@ namespace Match3
                                         $"match type = {verticalMatch._tile.TileType} " +
                                         $"match length = {verticalMatch._length} " +
                                         $"mathc ishorizontal = {verticalMatch._isHorizontal}");
-
+                                UpdateScore?.Invoke(tileLength);
                                 _matches.Add(verticalMatch);
                             }
 
