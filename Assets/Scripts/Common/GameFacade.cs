@@ -15,15 +15,14 @@ namespace Match3
 
         private void Awake()
         {
-            //_tileSwapper._cellList = _gridController._cellList;
-            _tileSwapper._cellList = _gridController._cellList;
+            _tileSwapper._cellGrid = _gridController._cellGrid;
         }
 
         private void Start()
         {
             _gridController.SpawnCellGrid();
-            _taskProcessor.AddTask(_gridController.SpawnTiles(_gridController._cellList));
-            _checkMatch.CheckMatchesAndProcess(_gridController._cellList);
+            _taskProcessor.AddTask(_gridController.SpawnTiles(_gridController._cellGrid));
+            //_checkMatch.CheckMatchesAndProcess(_gridController._cellList);
         }
 
 #if UNITY_EDITOR

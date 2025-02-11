@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: GameConfiguration
   m_EditorClassIdentifier: 
   _gameTiles: []
-  _rows: 6
-  _columns: 8
+  _rows: 3
+  _columns: 3

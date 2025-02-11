@@ -7,51 +7,85 @@ namespace Match3
     public class GridController : MonoBehaviour
     {
         protected internal List<Cell> _cellList = new List<Cell>();
+        protected internal Cell[,] _cellGrid = new Cell[,] { };
         [SerializeField] private Transform _startSpawnPosition;
         [SerializeField] private Cell _cellPrefab;
-        [SerializeField] private GridConfiguration _gameConfiguration;
+        [SerializeField] private GridConfiguration _gridConfig;
         [SerializeField] private TileAnimationController _tileAnimationController;
         [SerializeField] public TileFactory _tilePoolFactory;
         [SerializeField] private TilePool _tilePool;
+
+
         public void SpawnCellGrid()
         {
-            Debug.Log("Enter to the spawn cell grid");
+            _cellGrid = new Cell[_gridConfig._rows, _gridConfig._columns];  
 
-            for (int x = 0; x < _gameConfiguration._columns; x++)
+            for (int x = 0; x < _gridConfig._columns; x++)
             {
-                for (int y = 0; y < _gameConfiguration._rows; y++)
+                for (int y = 0; y < _gridConfig._rows; y++)
                 {
-                    Vector3 cellPosition = new Vector3(_startSpawnPosition.position.x + x, _startSpawnPosition.position.y + y, 0);
-                    var cellPrefab = Instantiate(_cellPrefab, cellPosition, Quaternion.identity, transform);
-                    _cellList.Add(cellPrefab);
+                    if (_gridConfig._gridMask[y, x] == 1)
+                    {
+                        Vector3 cellPosition = new Vector3(_startSpawnPosition.position.x + x, _startSpawnPosition.position.y - y, 0);
+                        var cellPrefab = Instantiate(_cellPrefab, cellPosition, Quaternion.identity, transform);
+
+          
+                        _cellGrid[y, x] = cellPrefab;
+                    }
                 }
             }
         }
 
-        public IEnumerator SpawnTiles(List<Cell> cellList)
+
+        public IEnumerator SpawnTiles(Cell[,] cellGrid)
         {
             Debug.Log("Enter to the spawn tiles");
 
             yield return new WaitForSeconds(1.5f);
 
-            for (int i = 0; i < _cellList.Count; i++)
+            for (int x = 0; x < _gridConfig._columns; x++)
             {
-                if (_cellList[i].Tile == null)
+                for (int y = 0; y < _gridConfig._rows; y++)
                 {
-                    int tileValue = Random.Range(0, _tilePoolFactory.GetPullLeght());
+                    // Get current cell
+                    Cell currentCell = cellGrid[y, x];
 
+                    
+                    if (currentCell != null && currentCell.Tile == null)
+                    {
+                        // get random tile
+                        int tileValue = Random.Range(0, _tilePoolFactory.GetPullLeght());
 
-                    var tile = _tilePool.GetTileFromPool(tileValue, _cellList[i].transform, _cellList.Count, transform);
-                    Debug.LogWarning($"Current length = {_tilePool.GetTileListLenght()}");
+                        // Проверка на валидность пула тайлов
+                        if (_tilePool == null)
+                        {
+                            Debug.LogError("Tile pool is null!");
+                            yield break;
+                        }
 
-                    // Проигрываем анимацию
-                    yield return _tileAnimationController.PlaySpawnTileAnimation(tile, _cellList[i].transform);
+                        // get tile from pull
+                        var tile = _tilePool.GetTileFromPool(tileValue, currentCell.transform, _cellList.Count, transform);
 
-                    _cellList[i].Tile = tile;
-                    _cellList[i].Tile.TileTransform = _cellList[i].transform;
+                        // log current tile pull length
+                        Debug.LogWarning($"Current length = {_tilePool.GetTileListLenght()}");
+
+                
+                        yield return _tileAnimationController.PlaySpawnTileAnimation(tile, currentCell.transform);
+
+                   
+                        currentCell.Tile = tile;
+                        currentCell.Tile.TileTransform = currentCell.transform;
+                    }
+                    else
+                    {
+               
+                        Debug.Log($"Cell at [{y}, {x}] already has a tile or is null.");
+                    }
                 }
             }
         }
+
+
 
 
         public IEnumerator DropTiles(List<Cell> cellList)
@@ -61,14 +95,14 @@ namespace Match3
             Debug.Log("Enter to the drop tiles");
             int cellListIndexPointer = 0;
 
-            for (int x = 0; x < _gameConfiguration._columns; x++)
+            for (int x = 0; x < _gridConfig._columns; x++)
             {
                 int nullCounter = 0;
                 int firstNullIndex = 0;
 
-                for (int y = 0; y < _gameConfiguration._rows; y++)
+                for (int y = 0; y < _gridConfig._rows; y++)
                 {
-                    if (cellList[cellListIndexPointer].Tile == null) // Пустая ячейка
+                    if (cellList[cellListIndexPointer].Tile == null)
                     {
                         if (nullCounter == 0)
                         {
@@ -76,10 +110,10 @@ namespace Match3
                         }
                         nullCounter++;
                     }
-                    else if (nullCounter > 0) // Есть пустые ячейки ниже
+                    else if (nullCounter > 0) // if emptu cell is down
                     {
-                        cellList[firstNullIndex].Tile = cellList[cellListIndexPointer].Tile; // Перезаписываем тайл в клетке
-                        cellList[firstNullIndex].Tile.TileTransform = _cellList[firstNullIndex].transform; // Перезаписываем трансформ клетки в тайл
+                        cellList[firstNullIndex].Tile = cellList[cellListIndexPointer].Tile; // overwriting tile
+                        cellList[firstNullIndex].Tile.TileTransform = _cellList[firstNullIndex].transform; // overwriting tile transform
 
                         // Проигрываем анимацию
                         yield return _tileAnimationController.PlayDropTileAnimation(cellList[firstNullIndex].Tile, _cellList[firstNullIndex].transform);
@@ -108,13 +142,13 @@ namespace Match3
             {
                 for (int j = 0; j < cellList.Count; j++)
                 {
-                    if (cellList[j] != null && matches[i]._tile.TileTransform == cellList[j].Tile.TileTransform && matches[i]._tile != null) // Ищем совпадения по трансформу
+                    if (cellList[j] != null && matches[i]._tile.TileTransform == cellList[j].Tile.TileTransform && matches[i]._tile != null)// Looking for a match on the transform
                     {
                         if (matches[i]._isHorizontal)
                         {
-                            for (int l = 0; l < matches[i]._length; l++) // По всей длине совпадения добавляем тайлы в список на удаление 
+                            for (int l = 0; l < matches[i]._length; l++) // Adding tiles to the list for deletion along the entire length of the match
                             {
-                                int index = j + rows * l; // горизонтальный шаш
+                                int index = j + rows * l; // horizontal step
 
                                 if (index >= 0 && index < cellList.Count)
                                 {
@@ -132,7 +166,7 @@ namespace Match3
                         {
                             for (int l = 0; l < matches[i]._length; l++)
                             {
-                                int index = j + l; // Вертикальный шаг
+                                int index = j + l; // vertical step 
 
                                 if (index >= 0 && index < cellList.Count)
                                 {

@@ -9,7 +9,8 @@ namespace Match3
         [SerializeField] private InputController _inputController;
         [SerializeField] private Cell _firstClickableObject = null;
         [SerializeField] protected internal CheckMatch _checkMatch;
-        protected internal List<Cell> _cellList;
+        protected internal Cell[,] _cellGrid;
+        //public GridController _gridController;
 
         private void OnEnable()
         {
@@ -23,6 +24,9 @@ namespace Match3
 
         private void CheckClickableObject(Cell clickableObject)
         {
+            Debug.Log($"Clickable cell pos = {clickableObject.transform.position}");
+
+
             if (_firstClickableObject == null)
             {
                 _firstClickableObject = clickableObject;
@@ -34,13 +38,15 @@ namespace Match3
                 {
                     if (CheckMove(_firstClickableObject, clickableObject))
                     {
-                        SwapClickableObject(_cellList, _firstClickableObject, clickableObject);
+
+
+                        SwapClickableObject(_cellGrid, _firstClickableObject, clickableObject);
 
                         PlayUnSelectAnimation(clickableObject);
 
                         _firstClickableObject = null;
                         Debug.Log("Check in the Swap");
-                        _checkMatch.CheckMatchesAndProcess(_cellList);
+                        //_checkMatch.CheckMatchesAndProcess(_cellList);
                     }
                     else
                     {
@@ -70,6 +76,7 @@ namespace Match3
             if (checkValue.normalized.x == 1 || checkValue.normalized.y == 1
                 || checkValue.normalized.x == -1 || checkValue.normalized.y == -1)
             {
+
                 return true;
             }
             else
@@ -78,36 +85,26 @@ namespace Match3
             }
         }
 
-        private void SwapClickableObject(List<Cell> cellList, Cell firstClickableObject, Cell secondClickableObject)
+        private void SwapClickableObject(Cell[,] cellGrid, Cell firstClickableCell, Cell secondClickableCell)
         {
-            // Перемещение тайлов в мире
-            Vector3 tempTransformPosition = firstClickableObject.Tile.transform.position;
-            firstClickableObject.Tile.transform.position = secondClickableObject.Tile.transform.position;
-            secondClickableObject.Tile.transform.position = tempTransformPosition;
 
-            // Обмен тайлов в ячейках
-            Tile tempTile = firstClickableObject.Tile;
-            firstClickableObject.Tile = secondClickableObject.Tile;
-            secondClickableObject.Tile = tempTile;
+            // swap tile position on the grid
+            Vector3 tempTransformPosition = firstClickableCell.Tile.transform.position;
+            firstClickableCell.Tile.transform.position = secondClickableCell.Tile.transform.position;
+            secondClickableCell.Tile.transform.position = tempTransformPosition;
 
-            // Найти индексы элементов в cellList
-            int firstObjectIndex = cellList.IndexOf(firstClickableObject);
-            int secondObjectIndex = cellList.IndexOf(secondClickableObject);
+            // swap tile reference to cell
+            Transform tempTransform = firstClickableCell.Tile.TileTransform;
+            firstClickableCell.Tile.TileTransform = secondClickableCell.Tile.TileTransform;
+            secondClickableCell.Tile.TileTransform = tempTransform;
 
-            if (firstObjectIndex >= 0 && secondObjectIndex >= 0)
-            {
-                // Обмен тайлов в списке
-                var temp = cellList[firstObjectIndex].Tile.TileTransform;
-                cellList[firstObjectIndex].Tile.TileTransform = cellList[secondObjectIndex].Tile.TileTransform;
-                cellList[secondObjectIndex].Tile.TileTransform = temp;
+            //swap tile sprite on the grid
+            Tile tempTile = firstClickableCell.Tile;
+            firstClickableCell.Tile = secondClickableCell.Tile;
+            secondClickableCell.Tile = tempTile;
 
-                Debug.Log("Tiles swapped successfully.");
-            }
-            else
-            {
-                Debug.LogWarning("Failed to find one or both tiles in the list.");
-            }
         }
+
 
 
         private void PlaySelectAnimation(Cell clickableObject)

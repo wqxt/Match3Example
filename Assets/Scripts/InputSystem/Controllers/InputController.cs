@@ -40,22 +40,28 @@ namespace Match3
         private void CheckClick()
         {
             CheckCamera();
-            try
+
+            try 
             {
                 if (_hit.collider.gameObject.TryGetComponent(out Cell cell))
                 {
-
+                    Debug.Log($"Click on the cell, pos = {cell.transform.position}");
                     ClickObject?.Invoke(cell);
                 }
                 else
                 {
+                    Debug.Log($"Click outside the field ");
                     return;
                 }
             }
             catch
             {
-                Debug.Log("Click out of game field");
+                Debug.Log($"Click outside the field ");
+                return ;
             }
+
+
+
         }
     }
 }

@@ -155,8 +155,6 @@ MonoBehaviour:
   _tilePull:
   - {fileID: 729508707098509962, guid: a29f7e4f00bc4794180bbeace2b0917a, type: 3}
   - {fileID: 8472809684160840243, guid: 5dd7aed9f66632e4fb26432c856bde24, type: 3}
-  - {fileID: 8160062166033390086, guid: 66577906154897a478a53311495760d0, type: 3}
-  - {fileID: 6442799495514169782, guid: 1c805c6222226854391af231f67fa4df, type: 3}
 --- !u!4 &32179643
 Transform:
   m_ObjectHideFlags: 0
@@ -646,7 +644,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _startSpawnPosition: {fileID: 1534933832}
   _cellPrefab: {fileID: 3153870492811644203, guid: ccba4adbb15911c48864f286b40de94d, type: 3}
-  _gameConfiguration: {fileID: 11400000, guid: 80c730e44875ba84eac7fd0cce1ba99b, type: 2}
+  _gridConfig: {fileID: 0}
   _tileAnimationController: {fileID: 1745596376}
   _tilePoolFactory: {fileID: 32179642}
   _tilePool: {fileID: 915604799}
@@ -1218,7 +1216,7 @@ PrefabInstance:
       objectReference: {fileID: 729508707098509962, guid: a29f7e4f00bc4794180bbeace2b0917a, type: 3}
     - target: {fileID: 3605001502825726263, guid: 6fe953758d0b0c64bb46f0ff690a9c39, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -2.5
+      value: 3.5
       objectReference: {fileID: 0}
     - target: {fileID: 4779509157261383342, guid: 6fe953758d0b0c64bb46f0ff690a9c39, type: 3}
       propertyPath: m_LocalPosition.x
@@ -1295,7 +1293,7 @@ GameObject:
   - component: {fileID: 1735665887}
   - component: {fileID: 1735665886}
   m_Layer: 0
-  m_Name: GameManager
+  m_Name: GameFacade
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

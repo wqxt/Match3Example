@@ -32,7 +32,7 @@ namespace Match3
             {
                 _taskProcessor.AddTask(_gridController.DeleteTiles(cellList, _gameConfiguration._rows, _gameConfiguration._columns, _matches));
                 _taskProcessor.AddTask(_gridController.DropTiles(cellList));
-                _taskProcessor.AddTask(_gridController.SpawnTiles(cellList));
+                //_taskProcessor.AddTask(_gridController.SpawnTiles(cellList));
 
                 CheckMatchesAndProcess(cellList);
             }
@@ -104,73 +104,75 @@ namespace Match3
                 }
             }
         }
-
         private void FindHorizontal(List<Cell> cellList, int rows, int columns)
         {
-            for (int i = 0; i < rows; i++)
+            for (int i = 0; i < rows; i++) // идём по строкам
             {
-                int cellListIndexPointer = i;
-
-                for (int j = 0; j < columns; j++)
+                for (int j = 0; j < columns - 1; j++) // идём по колонкам, не выходим за пределы
                 {
-                    int secondElementIndex = cellListIndexPointer + rows;
+                    // Индекс текущей ячейки в одномерном списке
+                    int currentIndex = i * columns + j;
 
+                    // Индекс следующей ячейки по горизонтали
+                    int nextIndex = currentIndex + 1;
+
+                    // Длина цепочки совпавших плиток
                     int tileLength = 1;
-                    int localStep = j + 1;
 
-                    if (localStep < columns)
+                    // Проверка совпадений по горизонтали
+                    if (nextIndex < cellList.Count && cellList[currentIndex].Tile.TileType == cellList[nextIndex].Tile.TileType)
                     {
-                        if (cellList[cellListIndexPointer].Tile.TileType == cellList[secondElementIndex].Tile.TileType)
+                        tileLength++;
+                        CheckHorizontalMatches(cellList, ref nextIndex, ref tileLength, j + 1, rows, columns);
+
+                        // Если длина совпадений больше или равна 3, добавляем в список матчей
+                        if (tileLength >= 3)
                         {
-                            tileLength++;
-                            CheckHorizontalMatches(cellList, ref secondElementIndex, ref tileLength, localStep, rows, columns);
+                            Match horizontalMatch = new Match(cellList[currentIndex].Tile,
+                                cellList[currentIndex].Tile.TileTransform.localPosition.x,
+                                cellList[currentIndex].Tile.TileTransform.localPosition.y,
+                                tileLength, true);
 
-                            if (tileLength >= 3)
-                            {
-                                Match verticalMatch = new Match(cellList[cellListIndexPointer].Tile, cellList[cellListIndexPointer].Tile.TileTransform.localPosition.x,
-                                    cellList[cellListIndexPointer].Tile.TileTransform.localPosition.y, tileLength, true);
-
-                                Debug.Log($"Match first pos X = {verticalMatch._tile.TileTransform.localPosition.x} ," +
-                                        $"Match first pos Y = {verticalMatch._tile.TileTransform.localPosition.y} " +
-                                        $"match type = {verticalMatch._tile.TileType} " +
-                                        $"match length = {verticalMatch._length} " +
-                                        $"mathc ishorizontal = {verticalMatch._isHorizontal}");
-                                UpdateScore?.Invoke(tileLength);
-                                _matches.Add(verticalMatch);
-                            }
-
-                            for (int x = 0; x < tileLength - 1; x++)
-                            {
-                                cellListIndexPointer = cellListIndexPointer + rows;
-                            }
-                            j = j + tileLength - 1;
+                            Debug.Log($"Match first pos X = {horizontalMatch._tile.TileTransform.localPosition.x} ," +
+                                    $"Match first pos Y = {horizontalMatch._tile.TileTransform.localPosition.y} " +
+                                    $"match type = {horizontalMatch._tile.TileType} " +
+                                    $"match length = {horizontalMatch._length} " +
+                                    $"match is horizontal = {horizontalMatch._isHorizontal}");
+                            UpdateScore?.Invoke(tileLength);
+                            _matches.Add(horizontalMatch);
                         }
 
+                        // Пропускаем проверенные плитки в текущей цепочке
+                        j += tileLength - 1;
                     }
-
-                    cellListIndexPointer = cellListIndexPointer + rows;
                 }
             }
         }
 
         private void CheckHorizontalMatches(List<Cell> cellList, ref int tileLastIndexPointer, ref int tileLength, int localStepIndex, int rows, int columns)
         {
-            int horizontalStep = tileLastIndexPointer + rows;
+            // Шаг по горизонтали для следующей плитки
+            int horizontalStep = tileLastIndexPointer + 1;  // +1, так как мы движемся по колонке
             int localStep = localStepIndex + 1;
 
             while (localStep < columns && horizontalStep < cellList.Count)
             {
+                // Проверяем, совпадает ли текущая плитка с соседней по горизонтали
                 if (cellList[tileLastIndexPointer].Tile.TileType == cellList[horizontalStep].Tile.TileType)
                 {
                     tileLength++;
-                    horizontalStep += rows;
+                    horizontalStep++;  // Продвигаемся по горизонтали
                     localStep++;
                 }
                 else
                 {
-                    break;
+                    break;  // Выход из цикла, если плитки не совпадают
                 }
             }
+
+            // Обновляем индекс в основном цикле
+            tileLastIndexPointer = horizontalStep - 1; // После завершения цикла индекс будет указывать на последнюю плитку
         }
+
     }
 }
